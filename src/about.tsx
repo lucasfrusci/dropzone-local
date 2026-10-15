@@ -1,0 +1,99 @@
+import {
+  getCurrentWebviewWindow,
+  WebviewWindow,
+} from "@tauri-apps/api/webviewWindow";
+import { invoke } from "@tauri-apps/api/core";
+import "./about.css";
+import { useEffect, useState } from "react";
+import { event } from "@tauri-apps/api";
+
+//const isAbout = window.location.hash === "#about";
+
+export const openAboutWindow = async () => {
+  const existing = await WebviewWindow.getByLabel("about");
+  const mainWindow = getCurrentWebviewWindow();
+
+  const scaleFactor = await mainWindow.scaleFactor();
+
+  const mainPos = await mainWindow.outerPosition();
+
+  if (!mainPos) return;
+
+  if (existing) {
+    existing.setFocus();
+    return;
+  }
+
+  const about = new WebviewWindow("about", {
+    url: "/#/about",
+    title: "About",
+    width: 300,
+    height: 100,
+    resizable: false,
+    maximizable: false,
+    minimizable: false,
+    decorations: false,
+    alwaysOnTop: true,
+    x: mainPos.x / scaleFactor + 20,
+    y: mainPos.y / scaleFactor + 170, // 220 - 50 METADE DO HEIGHT DA JANELA - METADE DESSA JANELA
+  });
+
+  about.once("tauri://window-created", () =>
+    console.log("About window created."),
+  );
+};
+
+type Appinfo = {
+  version: string;
+  name: string;
+};
+
+export const AboutWindow = () => {
+  const [appinfo, setAppinfo] = useState<Appinfo | null>(null);
+
+  const getAppinfo = async () => {
+    try {
+      const data: Appinfo = await invoke("get_appinfo");
+      setAppinfo(data);
+    } catch (err) {
+      console.log("Error to get Appinfo.");
+    }
+  };
+
+  const closeWindow = async () => {
+    invoke("close_window", { name: "about" });
+  };
+
+  const openProfile = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    try {
+      invoke("open_link_wrapper", { link: "https://github.com/lucasfrusci" });
+    } catch (e) {}
+  };
+
+  // useEffect(() => {
+  //     const element = document.getElementsByClassName('github')[0];
+  //     if (!element) return;
+  //     element.addEventListener('click', openProfile)
+  //     return () => element.removeEventListener('click', openProfile);
+
+  // }, [appinfo])
+
+  useEffect(() => {
+    getAppinfo();
+  }, []);
+  return (
+    appinfo && (
+      <div className="about-window" onClick={closeWindow}>
+        <div>
+          <span className="appname">{appinfo?.name}</span>
+          <span className="version"> v{appinfo?.version} alpha</span>
+        </div>
+        <span className="autor">Datasoft © 2027 All rights reserved</span>
+        <span className="autor github" onClick={(e) => openProfile(e)}>
+          github.com/lucasfrusci
+        </span>
+      </div>
+    )
+  );
+};
