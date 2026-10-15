@@ -1,4 +1,3 @@
-import { event } from "@tauri-apps/api";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { useEffect, useState } from "react";
 
@@ -11,7 +10,6 @@ export const useDrag = () => {
 
     const setupDrag = async () => {
       const appWindow = getCurrentWebviewWindow();
-      const dragArea = document.getElementsByClassName("dropzone")[0];
 
       unlistenDrop = await appWindow.onDragDropEvent((event) => {
         switch (event.payload.type) {

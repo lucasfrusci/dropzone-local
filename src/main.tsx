@@ -1,22 +1,22 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { createHashRouter, RouterProvider } from 'react-router-dom';
+import { createHashRouter, RouterProvider } from "react-router-dom";
 import { AboutWindow } from "./about";
 
 const router = createHashRouter([
   {
-    path: '/',
-    element: <App/>
+    path: "/",
+    element: <App />,
   },
   {
-    path: '/about',
-    element: <AboutWindow/>
-  }
-])
+    path: "/about",
+    element: <AboutWindow />,
+  },
+]);
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <RouterProvider router={router}/>
+    <RouterProvider router={router} />
   </React.StrictMode>,
 );

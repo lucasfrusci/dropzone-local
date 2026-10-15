@@ -33,7 +33,7 @@ fn close(window: WebviewWindow) {
 #[tauri::command]
 fn close_window(name: &str, app_handle: tauri::AppHandle) {
     if let Some(window) = app_handle.get_webview_window(name) {
-        let _ = window.close();
+        let _ = window.hide();
     }
 }
 
@@ -60,12 +60,6 @@ pub fn run() {
 
             let _icon = include_image!("./../public/tray-png/tray-icon.png");
 
-            if let Some(window) = app.get_webview_window("main") {
-                let _ = window.hide();
-                let _ = window.move_window(Position::BottomRight);
-                let _ = window.show();
-            }
-
             let menu = tauri::menu::Menu::with_items(
                 app,
                 &[
@@ -87,11 +81,15 @@ pub fn run() {
                         ..
                     } => {
                         let app = tray.app_handle();
-                        tauri_plugin_positioner::on_tray_event(app, &event);
+                        //tauri_plugin_positioner::on_tray_event(app, &event);
                         let window = app.get_webview_window("main").unwrap();
-                        let _ = window.move_window(Position::TrayCenter);
+                        //let _ = window.move_window(Position::TrayCenter);
                         let _ = window.show();
                         let _ = window.set_focus();
+                        
+                        //DESATIVEI ESSE ABAIXO, POR ENQUANTO VAMOS USAR O MODO ANTIGO.
+                        //let _ = app.emit("open_window", "Tray clicked!");
+                        
                     }
                     _ => {}
                 })

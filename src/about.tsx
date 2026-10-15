@@ -20,6 +20,7 @@ export const openAboutWindow = async () => {
   if (!mainPos) return;
 
   if (existing) {
+    existing.show();
     existing.setFocus();
     return;
   }
@@ -60,10 +61,6 @@ export const AboutWindow = () => {
     }
   };
 
-  const closeWindow = async () => {
-    invoke("close_window", { name: "about" });
-  };
-
   const openProfile = (event: React.MouseEvent) => {
     event.stopPropagation();
     try {
@@ -71,29 +68,24 @@ export const AboutWindow = () => {
     } catch (e) {}
   };
 
-  // useEffect(() => {
-  //     const element = document.getElementsByClassName('github')[0];
-  //     if (!element) return;
-  //     element.addEventListener('click', openProfile)
-  //     return () => element.removeEventListener('click', openProfile);
-
-  // }, [appinfo])
+  const closeWindow = async () => {
+    invoke("close_window", { name: "about" });
+  };
 
   useEffect(() => {
     getAppinfo();
   }, []);
+
   return (
-    appinfo && (
-      <div className="about-window" onClick={closeWindow}>
-        <div>
-          <span className="appname">{appinfo?.name}</span>
-          <span className="version"> v{appinfo?.version} alpha</span>
-        </div>
-        <span className="autor">Datasoft © 2027 All rights reserved</span>
-        <span className="autor github" onClick={(e) => openProfile(e)}>
-          github.com/lucasfrusci
-        </span>
+    <div className="about-window" onClick={closeWindow}>
+      <div>
+        <span className="appname">{appinfo?.name}</span>
+        <span className="version"> v{appinfo?.version} alpha</span>
       </div>
-    )
+      <span className="autor">Datasoft © 2027 All rights reserved</span>
+      <span className="autor github" onClick={(e) => openProfile(e)}>
+        github.com/lucasfrusci
+      </span>
+    </div>
   );
 };

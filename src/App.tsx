@@ -5,8 +5,10 @@ import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import { openAboutWindow } from "./about";
 import { useDrag } from "./useDrag";
+import { useControlWindow } from "./useWindow";
 
 function App() {
+  const { positionWindow, winState, setWinState } = useControlWindow();
   const { files, isDragging, setIsDragging } = useDrag();
   //@ts-ignore
   const [recentUploads, setRecentUploads] = useState<string[]>([]);
@@ -32,6 +34,7 @@ function App() {
   const handleClose = async () => {
     try {
       await invoke("close");
+      setWinState((state) => ({ ...state, winOpen: false }));
     } catch (err) {
       console.log("Erro ao fechar!");
     }
@@ -61,6 +64,33 @@ function App() {
       console.error("Error reading clipboard:", error);
     }
   };
+
+  //const opened = openWindow(positionWindow);
+
+  // useEffect(() => {
+  //   let unlisten: any;
+
+  //   async function initTrayListener() {
+
+  //   }
+
+  //   initTrayListener();
+
+  //   // Limpa o listener ao desmontar
+  //   return () => {
+  //     if (unlisten) unlisten();
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    if (winState.fistRun)
+      positionWindow().then(() =>
+        setWinState((state) => ({ ...state, fistRun: false })),
+      );
+    if (winState.winOpen) return;
+    window.addEventListener("focus", positionWindow);
+    return () => window.removeEventListener("focus", positionWindow);
+  }, [winState.winOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
