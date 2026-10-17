@@ -6,11 +6,14 @@ import "./App.css";
 import { openAboutWindow } from "./about";
 import { useDrag } from "./useDrag";
 import { useControlWindow } from "./useWindow";
+import { SettingsView } from "./settings";
+import { RecentsListView } from "./recents";
+import { usePageView } from "./usePageView";
 
 function App() {
   const { positionWindow, winState, setWinState } = useControlWindow();
   const { files, isDragging, setIsDragging } = useDrag();
-  //@ts-ignore
+  const { togglePage } = usePageView();
   const [recentUploads, setRecentUploads] = useState<string[]>([]);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -64,23 +67,6 @@ function App() {
       console.error("Error reading clipboard:", error);
     }
   };
-
-  //const opened = openWindow(positionWindow);
-
-  // useEffect(() => {
-  //   let unlisten: any;
-
-  //   async function initTrayListener() {
-
-  //   }
-
-  //   initTrayListener();
-
-  //   // Limpa o listener ao desmontar
-  //   return () => {
-  //     if (unlisten) unlisten();
-  //   };
-  // }, []);
 
   useEffect(() => {
     if (winState.fistRun)
@@ -166,14 +152,11 @@ function App() {
           <span className="action-label">Upload from clipboard</span>
           <span className="action-shortcut">Ctrl+V</span>
         </div> */}
-        <div
-          className="action-item"
-          onClick={() => console.log("Recent uploads")}
-        >
+        <div className="action-item" onClick={() => togglePage("recents")}>
           <span className="action-label">Recent uploads</span>
           <span className="action-shortcut">Ctrl+R</span>
         </div>
-        <div className="action-item" onClick={() => console.log("Settings")}>
+        <div className="action-item" onClick={() => togglePage("settings")}>
           <span className="action-label">Settings</span>
           <span className="action-shortcut">Ctrl+S</span>
         </div>
@@ -194,16 +177,19 @@ function App() {
         </div>
       </div>
 
-      {recentUploads.length > 0 && (
-        <div className="recent-uploads">
-          <h3>Recent Uploads</h3>
-          <ul className="recent-list">
-            {recentUploads.map((upload, index) => (
-              <li key={index}>{upload}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* {recentUploads.length > 0 && (
+          <div className="recent-uploads">
+            <h3>Recent Uploads</h3>
+            <ul className="recent-list">
+              {recentUploads.map((upload, index) => (
+                <li key={index}>{upload}</li>
+              ))}
+            </ul>
+          </div>
+        )} */}
+
+      {/* <SettingsView changePage={() => togglePage("settings")} />
+      <RecentsListView changePage={() => togglePage("recents")} /> */}
     </main>
   );
 }

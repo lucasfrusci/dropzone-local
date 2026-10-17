@@ -1,10 +1,9 @@
-import { listen } from "@tauri-apps/api/event";
 import {
   currentMonitor,
   getCurrentWindow,
   LogicalPosition,
 } from "@tauri-apps/api/window";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 type WindowState = {
   fistRun: boolean;
@@ -31,7 +30,7 @@ export const useControlWindow = () => {
 
       await appWindow.setPosition(new LogicalPosition(x, y));
       await appWindow.show();
-      await appWindow.setFocus();
+      //await appWindow.setFocus();
       setWinState((state) => ({ ...state, winOpen: true }));
     } catch (error) {
       console.log("Error to position Window:", error);

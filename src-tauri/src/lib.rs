@@ -33,7 +33,7 @@ fn close(window: WebviewWindow) {
 #[tauri::command]
 fn close_window(name: &str, app_handle: tauri::AppHandle) {
     if let Some(window) = app_handle.get_webview_window(name) {
-        let _ = window.hide();
+        let _ = window.close().unwrap();
     }
 }
 
@@ -107,6 +107,19 @@ pub fn run() {
                 .build(app)?;
 
             Ok(())
+        })
+        .on_window_event(|window, event| {
+            match event {
+                tauri::WindowEvent::CloseRequested {api, ..} => {
+                    if window.label() == "main" {
+                        let _ = api.prevent_close();
+                        let _ = window.hide().unwrap();
+                    }
+                    
+                }
+                _ => {}
+            }
+                    
         })
         .invoke_handler(tauri::generate_handler![
             greet,

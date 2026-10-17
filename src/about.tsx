@@ -6,6 +6,7 @@ import { invoke } from "@tauri-apps/api/core";
 import "./about.css";
 import { useEffect, useState } from "react";
 import { event } from "@tauri-apps/api";
+import { LogicalPosition } from "@tauri-apps/api/dpi";
 
 //const isAbout = window.location.hash === "#about";
 
@@ -19,7 +20,11 @@ export const openAboutWindow = async () => {
 
   if (!mainPos) return;
 
+  const x = mainPos.x / scaleFactor + 20;
+  const y = mainPos.y / scaleFactor + 170; // 220 - 50 METADE DO HEIGHT DA JANELA - METADE DESSA JANELA
+
   if (existing) {
+    existing.setPosition(new LogicalPosition(x, y));
     existing.show();
     existing.setFocus();
     return;
@@ -35,8 +40,8 @@ export const openAboutWindow = async () => {
     minimizable: false,
     decorations: false,
     alwaysOnTop: true,
-    x: mainPos.x / scaleFactor + 20,
-    y: mainPos.y / scaleFactor + 170, // 220 - 50 METADE DO HEIGHT DA JANELA - METADE DESSA JANELA
+    x: x,
+    y: y,
   });
 
   about.once("tauri://window-created", () =>
