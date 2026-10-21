@@ -1,10 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import { openAboutWindow } from "./about";
 import { useControlWindow } from "./hooks/useWindow";
-import { useDrag } from "./hooks/useDrag";
 import { usePageView } from "./hooks/usePageView";
 import { useDropzone } from "react-dropzone";
 import { ProgressBar } from "./components/progress-bar";
@@ -101,7 +99,7 @@ function App() {
         ref={dropAreaRef}
         {...getRootProps()}
         data-status={status}
-        className={`dropzone ${status === "active" && "dragging"}`}
+        className={`dropzone ${status === "active" && "dragging"} ${status === "pending" && "hover"}`}
         onClick={open}
         // onDragOver={handleDragOver}
         // onDragLeave={handleDragLeave}
@@ -171,7 +169,7 @@ function App() {
           action={() => togglePage("settings")}
         />
         <MenuAction label="Check for updates" />
-        <MenuAction label="About dropzone" action={openAboutWindow} />
+        <MenuAction label="About Dropzone" action={openAboutWindow} />
         <MenuAction label="Close" hotkey="Ctrl+Q" action={handleClose} />
       </MenuItems.Root>
 

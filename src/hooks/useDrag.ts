@@ -1,5 +1,4 @@
-import { event } from "@tauri-apps/api";
-import { PhysicalPosition } from "@tauri-apps/api/dpi";
+//* AQUIVO NAO MAIS USADO ALTERADO O HANDLE DE DRAG E DROP PARA O REACT *//
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { RefObject, useEffect, useState } from "react";
 

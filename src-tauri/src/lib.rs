@@ -98,13 +98,23 @@ pub fn run() {
                     } => {
                         let app = tray.app_handle();
                         //tauri_plugin_positioner::on_tray_event(app, &event);
-                        let window = app.get_webview_window("main").unwrap();
+                        //let window = app.get_webview_window("main").unwrap();
+                        //VERIFY IS MINIMIZED IF IS UNMINIMIZE, IF IS HIDE APP SHOW
+                        if let Some(window) = app.get_webview_window("main") {
+                            let is_min: Result<bool, _> = window.is_minimized();
+
+                            match is_min {
+                                Ok(true) => window.unminimize().unwrap(),
+                                _ => {
+                                    let _ = window.show().unwrap();
+                                    let _ = window.set_focus().unwrap();
+                                },
+                            };
+                        }
+
                         //let _ = window.move_window(Position::TrayCenter);
-                        let _ = window.show();
-                        let _ = window.set_focus();
-                        
                         //DESATIVEI ESSE ABAIXO, POR ENQUANTO VAMOS USAR O MODO ANTIGO.
-                        let _ = app.emit("open_window", "Tray clicked!").unwrap();
+                        //let _ = app.emit("open_window", "Tray clicked!").unwrap();
                         
                     }
                     _ => {}

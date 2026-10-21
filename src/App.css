@@ -40,6 +40,7 @@
   height: 100vh;
   overflow: hidden;
   position: relative;
+  justify-content: space-between;
 }
 
 .drag-window-region {
@@ -76,10 +77,9 @@
   transition: all 0.3s ease;
 }
 
-.dropzone:hover {
+.dropzone.hover:hover {
   opacity: .6;
 }
-
 
 .dropzone input{
   display: none;
