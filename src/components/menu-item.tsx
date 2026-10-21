@@ -1,4 +1,5 @@
-import { ReactNode } from "react";
+import { ReactNode, useRef } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 export type MenuActionProps = {
   label: string;
@@ -10,11 +11,27 @@ const MenuItemRoot = ({ children }: { children: ReactNode }) => {
   return <div className="actions">{children}</div>;
 };
 
-export const MenuAction = (props: MenuActionProps) => {
+export const MenuAction = ({ label, hotkey = "", action }: MenuActionProps) => {
+  const optionRef = useRef<HTMLDivElement>(null);
+  useHotkeys(
+    hotkey,
+    () => {
+      const actionEvent = new MouseEvent("click", {
+        view: window,
+        bubbles: true,
+      });
+
+      optionRef.current?.dispatchEvent(actionEvent);
+    },
+    {
+      enabled: hotkey != "",
+      preventDefault: true,
+    },
+  );
   return (
-    <div className="action-item" onClick={props.action}>
-      <span className="action-label">{props.label}</span>
-      {props.hotkey && <span className="action-shortcut">{props.hotkey}</span>}
+    <div ref={optionRef} className="action-item" onClick={action}>
+      <span className="action-label">{label}</span>
+      {hotkey && <span className="action-shortcut">{hotkey}</span>}
     </div>
   );
 };

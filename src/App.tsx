@@ -93,33 +93,6 @@ function App() {
     positionWindow();
   }, []);
 
-  // HANDLE THE HOTKEYS
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === "o") {
-        e.preventDefault();
-        open();
-      } else if (e.ctrlKey && e.key === "v") {
-        e.preventDefault();
-        //handlePaste();
-      } else if (e.ctrlKey && e.key === "u") {
-        e.preventDefault();
-        console.log("Recent uploads");
-      } else if (e.ctrlKey && e.key === ";") {
-        e.preventDefault();
-        console.log("Settings");
-      } else if (e.ctrlKey && e.key === "q") {
-        e.preventDefault();
-        handleClose();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
-  /*DRAG FILES HERE / OR USE OPTIONS BELOW */
-
   return (
     <main className="dropzone-container">
       <div className="drag-window-region" data-tauri-drag-region></div>
@@ -189,7 +162,7 @@ function App() {
         /> */}
         <MenuAction
           label="Recent uploads"
-          hotkey="Ctrl+Shift+R"
+          hotkey="Ctrl+U"
           action={() => togglePage("recents")}
         />
         <MenuAction
