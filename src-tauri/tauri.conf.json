@@ -21,7 +21,9 @@
         "alwaysOnTop": true,
         "maximizable": false,
         "center": true,
-        "visible": false
+        "visible": false,
+        "transparent": true,
+        "dragDropEnabled": false
       }
     ],
     "security": {

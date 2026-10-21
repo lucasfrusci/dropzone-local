@@ -19,6 +19,7 @@
 
 *{
   box-sizing: border-box;
+  outline: none;
   margin: 0;
 }
 
@@ -65,11 +66,12 @@
   width: 100%;
   max-width: 320px;
   height: 120px;
+  padding: 20px;
   border: 2px dashed #ccc;
   border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+
+  align-content: center;
+  text-align: center;
   background-color: #ffffff;
   transition: all 0.3s ease;
 }
@@ -78,16 +80,21 @@
   opacity: .6;
 }
 
+
+.dropzone input{
+  display: none;
+}
+
 .dropzone.dragging {
-  border-color: #396cd8;
-  background-color: #f0f7ff;
+  border-color: var(--acent-color);
+  background-color: var(--acent-color-dragging);
 }
 
 .dropzone-content {
-  display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
+  overflow: hidden;
 }
 
 #upload-icon {
@@ -105,6 +112,27 @@
   margin: 0;
   font-size: 12px;
   color: #666;
+}
+
+.progressbar {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  background-color: #f0f0f0;
+  margin: 0 20px;
+  overflow: hidden;
+}
+
+.progressbar .is-loading {
+  background-color: #666;
+}
+
+.ellipsis {
+  width: 200px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: center;
 }
 
 .actions {
@@ -129,6 +157,7 @@
 }
 
 .action-item:hover {
+  color: #ffffff;
   background-color: var(--acent-color);
 }
 
@@ -140,7 +169,7 @@
   font-size: 12px;
   color: #666;
   background-color: #f0f0f0;
-  padding: 2px 6px;
+  padding: 0px 6px; /*2px 6px*/
   border-radius: 4px;
   font-family: monospace;
 }
@@ -201,6 +230,14 @@
     color: #aaa;
   }
 
+  .progressbar {
+    background-color: #4f4f4f;
+  }
+  
+  .progressbar .is-loading {
+    background-color: #aaa;
+  }
+
   .upload-icon {
     color: #24c8db;
   }
@@ -211,7 +248,7 @@
 
   .action-shortcut {
     color: #aaa;
-    background-color: #4f4f4f;
+    background-color: transparent;
   }
 
   .recent-uploads {

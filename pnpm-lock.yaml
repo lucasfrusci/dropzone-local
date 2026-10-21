@@ -26,6 +26,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.3.0(react@19.3.0)
+      react-dropzone:
+        specifier: ^20.1.4
+        version: 20.1.4(@types/react@19.3.0)(react@19.3.0)
       react-router-dom:
         specifier: ^7.18.4
         version: 7.18.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -265,6 +268,10 @@ packages:
       oxc-transform-react:
         optional: true
 
+  attr-accept@4.0.1:
+    resolution: {integrity: sha512-rOKAGOwbnTUvwTL8rNA0hWnU3uX9tOI20di4KjR5I1ez/RJmnA37W3zz4EMxGC2YnI289yPjRy63CdAZeQFZ4Q==}
+    engines: {node: '>= 22'}
+
   cookie@1.1.1:
     resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
     engines: {node: '>=18'}
@@ -284,6 +291,10 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  file-selector@5.0.1:
+    resolution: {integrity: sha512-v0g/PTeuQgvKCBrVRsfVudvwXlRHSWHEQkVgKawgCGHkEpKA1clp3Om5jvEVhz8G9W/mOYjJH9FhkH4C888PgQ==}
+    engines: {node: '>= 22'}
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -384,6 +395,16 @@ packages:
     resolution: {integrity: sha512-JDk8dgif51OjFoDE70+OT9ICyYr+69HlmihNwp1+Nsfbna3t5sIiCa9ZJktDmQ4/1b/rn26hIAR2uYXDMr5r0Q==}
     peerDependencies:
       react: ^19.3.0
+
+  react-dropzone@20.1.4:
+    resolution: {integrity: sha512-LyjT9iQySNkJGC6yL+XTlmfTRxHhPx0eSoTh+WlR0Ge+W35rLcRH/oH7w5bzijfPHeCFcLnO9G7i+hX+LINAAA==}
+    engines: {node: '>= 22'}
+    peerDependencies:
+      '@types/react': '*'
+      react: '>= 18'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   react-router-dom@7.18.4:
     resolution: {integrity: sha512-yrfmJHIpDG7taCpqKjT1G5B6q3O2K+RN8/fgNf0lTjCwiPbQ0ei6vXX9ZjQR+7ld8Tr7Z5xmyMnZ8YJrphWQUw==}
@@ -598,6 +619,8 @@ snapshots:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.3.4
 
+  attr-accept@4.0.1: {}
+
   cookie@1.1.1: {}
 
   csstype@3.2.3: {}
@@ -607,6 +630,8 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.7):
     optionalDependencies:
       picomatch: 4.0.7
+
+  file-selector@5.0.1: {}
 
   fsevents@2.3.3:
     optional: true
@@ -676,6 +701,14 @@ snapshots:
     dependencies:
       react: 19.3.0
       scheduler: 0.28.0
+
+  react-dropzone@20.1.4(@types/react@19.3.0)(react@19.3.0):
+    dependencies:
+      attr-accept: 4.0.1
+      file-selector: 5.0.1
+      react: 19.3.0
+    optionalDependencies:
+      '@types/react': 19.3.0
 
   react-router-dom@7.18.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:

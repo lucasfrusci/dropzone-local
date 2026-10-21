@@ -1,102 +1,111 @@
-import { useState, useEffect } from "react";
-import { open } from "@tauri-apps/plugin-dialog";
+import { useState, useEffect, useRef } from "react";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import { openAboutWindow } from "./about";
-import { useDrag } from "./useDrag";
-import { useControlWindow } from "./useWindow";
-import { SettingsView } from "./settings";
-import { RecentsListView } from "./recents";
-import { usePageView } from "./usePageView";
+import { useControlWindow } from "./hooks/useWindow";
+import { useDrag } from "./hooks/useDrag";
+import { usePageView } from "./hooks/usePageView";
+import { useDropzone } from "react-dropzone";
+import { ProgressBar } from "./components/progress-bar";
+import { emit } from "@tauri-apps/api/event";
+import { MenuAction, MenuItems } from "./components/menu-item";
 
 function App() {
-  const { positionWindow, winState, setWinState } = useControlWindow();
-  const { files, isDragging, setIsDragging } = useDrag();
+  const { positionWindow, setWinOpen } = useControlWindow();
+  const dropAreaRef = useRef<HTMLDivElement>(null);
+  const [filesQueue, setFilesQueue] = useState<File[]>([]);
+
   const { togglePage } = usePageView();
   const [recentUploads, setRecentUploads] = useState<string[]>([]);
+  const [progressBar, setProgressBar] = useState<number>(0);
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const files = Array.from(e.dataTransfer.files);
-    console.log("Dropped files:", files);
-    // TODO: Implement file upload logic
-  };
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
+    onDrop: handleStartUpload,
+    multiple: true,
+    noClick: true,
+    noKeyboard: true,
+  });
 
   const handleClose = async () => {
     try {
       await invoke("close");
-      setWinState((state) => ({ ...state, winOpen: false }));
+      setWinOpen(false);
     } catch (err) {
       console.log("Erro ao fechar!");
     }
   };
 
-  const handleSelectFile = async () => {
-    try {
-      const selected = await open({
-        multiple: true,
-        directory: false,
-      });
-      if (selected) {
-        console.log("Selected files:", selected);
-        // TODO: Implement file upload logic
+  async function handlePaste(event: ClipboardEvent) {
+    const items = event.clipboardData?.items;
+
+    if (!items) return;
+
+    for (const i in items) {
+      const item = items[i];
+
+      if (item.kind === "file") {
+        const blob = item.getAsFile();
+        setFilesQueue((state) => ({ ...state, blob }));
       }
-    } catch (error) {
-      console.error("Error selecting file:", error);
     }
+  }
+
+  const emitUploadProgress = (progress: number) => {
+    emit("progress", { progress });
   };
 
-  const handleUploadFromClipboard = async () => {
-    try {
-      const clipboardText = await readText();
-      console.log("Clipboard content:", clipboardText);
-      // TODO: Implement clipboard upload logic
-    } catch (error) {
-      console.error("Error reading clipboard:", error);
-    }
-  };
+  function handleStartUpload(files: File[]) {
+    setFilesQueue(files);
+
+    setTimeout(() => {
+      setProgressBar(25);
+      emitUploadProgress(25);
+    }, 1500);
+
+    setTimeout(() => {
+      setProgressBar(50);
+      emitUploadProgress(50);
+    }, 1500 * 2);
+
+    setTimeout(() => {
+      setProgressBar(75);
+      emitUploadProgress(75);
+    }, 1500 * 3);
+
+    setTimeout(() => {
+      setProgressBar(100);
+      emitUploadProgress(100);
+    }, 1500 * 4);
+
+    setTimeout(() => {
+      setProgressBar(0);
+      emitUploadProgress(0);
+      setFilesQueue([]);
+    }, 1500 * 5);
+  }
+
+  const status =
+    filesQueue.length > 0 ? "accept" : isDragActive ? "active" : "pending";
 
   useEffect(() => {
-    if (winState.fistRun)
-      positionWindow().then(() =>
-        setWinState((state) => ({ ...state, fistRun: false })),
-      );
-    if (winState.winOpen) return;
-    window.addEventListener("focus", positionWindow);
-    return () => window.removeEventListener("focus", positionWindow);
-  }, [winState.winOpen]);
+    //POSITION THE WINDOW ON BOTTOM RIGHT, OPEN WINDOW AFTER START APP.
+    positionWindow();
+  }, []);
 
+  // HANDLE THE HOTKEYS
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === "o") {
         e.preventDefault();
-        handleSelectFile();
+        open();
       } else if (e.ctrlKey && e.key === "v") {
         e.preventDefault();
-        handleUploadFromClipboard();
-      } else if (e.ctrlKey && e.key === "r") {
-        e.preventDefault();
-        console.log("Recent uploads");
-      } else if (e.ctrlKey && e.key === "a") {
-        e.preventDefault();
-        openAboutWindow();
-        console.log("About Dropzone");
+        //handlePaste();
       } else if (e.ctrlKey && e.key === "u") {
         e.preventDefault();
-        console.log("Check for updates");
-      } else if (e.ctrlKey && e.key === "s") {
+        console.log("Recent uploads");
+      } else if (e.ctrlKey && e.key === ";") {
         e.preventDefault();
         console.log("Settings");
       } else if (e.ctrlKey && e.key === "q") {
@@ -116,66 +125,82 @@ function App() {
       <div className="drag-window-region" data-tauri-drag-region></div>
 
       <div
-        className={`dropzone ${isDragging ? "dragging" : ""}`}
-        onClick={handleSelectFile}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
+        ref={dropAreaRef}
+        {...getRootProps()}
+        data-status={status}
+        className={`dropzone ${status === "active" && "dragging"}`}
+        onClick={open}
+        // onDragOver={handleDragOver}
+        // onDragLeave={handleDragLeave}
+        // onDrop={handleDrop}
       >
+        <input {...getInputProps()} />
+
+        {status === "active" && "Start Upload..."}
+
         <div className="dropzone-content">
-          <svg
-            id="upload-icon"
-            width="32"
-            height="32"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="17 8 12 3 7 8" />
-            <line x1="12" y1="3" x2="12" y2="15" />
-          </svg>
-          <p className="dropzone-text">
-            {isDragging ? "Solte os arquivos aqui" : "Arraste arquivos aqui"}
-          </p>
-          <p className="dropzone-subtext">ou use as opções abaixo</p>
+          {status === "pending" && (
+            <>
+              {/* <svg
+                id="upload-icon"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg> */}
+              <p className="dropzone-text">
+                {isDragActive
+                  ? "Solte os arquivos aqui"
+                  : "Arraste arquivos aqui"}
+              </p>
+              <p className="dropzone-subtext">ou use as opções abaixo</p>
+            </>
+          )}
+
+          {status === "accept" &&
+            (filesQueue.length > 1 ? (
+              <p className="dropzone-subtext">
+                Uploading {filesQueue.length} file(s)...
+              </p>
+            ) : (
+              <p className="dropzone-subtext">
+                Uploading{" "}
+                {filesQueue[0].name.length > 30
+                  ? filesQueue[0].name.substring(0, 30).concat("...")
+                  : filesQueue[0].name}
+              </p>
+            ))}
+          {status === "accept" && <ProgressBar status={progressBar} />}
         </div>
       </div>
 
-      <div className="actions">
-        <div className="action-item" onClick={handleSelectFile}>
-          <span className="action-label">Select file</span>
-          <span className="action-shortcut">Ctrl+O</span>
-        </div>
-        {/* <div className="action-item" onClick={handleUploadFromClipboard}>
-          <span className="action-label">Upload from clipboard</span>
-          <span className="action-shortcut">Ctrl+V</span>
-        </div> */}
-        <div className="action-item" onClick={() => togglePage("recents")}>
-          <span className="action-label">Recent uploads</span>
-          <span className="action-shortcut">Ctrl+R</span>
-        </div>
-        <div className="action-item" onClick={() => togglePage("settings")}>
-          <span className="action-label">Settings</span>
-          <span className="action-shortcut">Ctrl+S</span>
-        </div>
-        <div
-          className="action-item"
-          onClick={() => console.log("Check for updates")}
-        >
-          <span className="action-label">Check for updates</span>
-          <span className="action-shortcut">Ctrl+U</span>
-        </div>
-        <div className="action-item" onClick={() => openAboutWindow()}>
-          <span className="action-label">About Dropzone</span>
-          <span className="action-shortcut">Ctrl+A</span>
-        </div>
-        <div className="action-item" onClick={() => handleClose()}>
-          <span className="action-label">Close</span>
-          <span className="action-shortcut">Ctrl+Q</span>
-        </div>
-      </div>
+      <MenuItems.Root>
+        <MenuAction label="Select file" hotkey="Ctrl+O" action={open} />
+        {/* <MenuItems.Action
+          label="Upload from clipboard"
+          hotkey="Ctrl+Shift+V"
+          action={open}
+        /> */}
+        <MenuAction
+          label="Recent uploads"
+          hotkey="Ctrl+Shift+R"
+          action={() => togglePage("recents")}
+        />
+        <MenuAction
+          label="Settings"
+          hotkey="Ctrl+;"
+          action={() => togglePage("settings")}
+        />
+        <MenuAction label="Check for updates" />
+        <MenuAction label="About dropzone" action={openAboutWindow} />
+        <MenuAction label="Close" hotkey="Ctrl+Q" action={handleClose} />
+      </MenuItems.Root>
 
       {/* {recentUploads.length > 0 && (
           <div className="recent-uploads">

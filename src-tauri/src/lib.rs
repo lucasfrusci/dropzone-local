@@ -1,9 +1,11 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-use tauri::{Manager, WebviewWindow, include_image};
+use tauri::{Manager, WebviewWindow, include_image, Emitter};
 //use std::process;
 use tauri_plugin_positioner::{WindowExt, Position};
 
 use serde::{Deserialize, Serialize};
+
+use window_vibrancy::{apply_mica, apply_acrylic, apply_blur};
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -60,6 +62,20 @@ pub fn run() {
 
             let _icon = include_image!("./../public/tray-png/tray-icon.png");
 
+            #[cfg(target_os = "windows")]
+            {
+                let main_window = app.get_webview_window("main").unwrap();
+                let version = windows_version::OsVersion::current();
+
+                if version.major > 10 || (version.major == 10 && version.build >= 22000) {
+                    apply_mica(&main_window, None).expect("Failed to apply mica effect");
+                } else if version.major == 10 {
+                    apply_acrylic(&main_window, None).expect("Failed to apply blur effect");
+                } else {
+                    apply_blur(&main_window, None).expect("Failed to apply blur effect");
+                }
+            }
+
             let menu = tauri::menu::Menu::with_items(
                 app,
                 &[
@@ -73,7 +89,7 @@ pub fn run() {
                 .menu(&menu)
                 .show_menu_on_left_click(false)
                 .icon_as_template(true)
-                .icon(_icon)
+                .icon(_icon.clone())
                 .tooltip("Datasoft Dropzone")
                 .on_tray_icon_event(|tray, event| match event {
                     tauri::tray::TrayIconEvent::Click {
@@ -88,7 +104,7 @@ pub fn run() {
                         let _ = window.set_focus();
                         
                         //DESATIVEI ESSE ABAIXO, POR ENQUANTO VAMOS USAR O MODO ANTIGO.
-                        //let _ = app.emit("open_window", "Tray clicked!");
+                        let _ = app.emit("open_window", "Tray clicked!").unwrap();
                         
                     }
                     _ => {}
