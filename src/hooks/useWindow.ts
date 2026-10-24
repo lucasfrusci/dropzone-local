@@ -1,16 +1,19 @@
+import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import {
   currentMonitor,
   getCurrentWindow,
   LogicalPosition,
 } from "@tauri-apps/api/window";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-const MARGIN_RIGHT = 20;
+const MARGIN_RIGHT = 68;
 const MARGIN_BOTTOM = 68;
 
 export const useControlWindow = () => {
   const [winOpen, setWinOpen] = useState<boolean>(false);
+  const isTransparent = useRef(false);
+
   const positionWindow = useCallback(async () => {
     try {
       const appWindow = getCurrentWindow();
@@ -31,6 +34,21 @@ export const useControlWindow = () => {
       setWinOpen(true);
     } catch (error) {
       console.log("Error to position Window:", error);
+    }
+  }, []);
+
+  // THIS FUNCTION CHANGE ROOT AND DRAG ELEMENT TO TRANSPARENT
+  // TO WORK THE MICA EFFECT, I DISABLED IT FOR NOW.
+  const setWindowEffect = useCallback(async () => {
+    try {
+      const root = document.documentElement;
+      const dragElement = <HTMLElement>(
+        document.getElementsByClassName("dropzone")[0]
+      );
+      root.style.backgroundColor = "transparent";
+      dragElement.style.backgroundColor = "transparent";
+    } catch (err) {
+      console.log("Error to set mica Effect.");
     }
   }, []);
 

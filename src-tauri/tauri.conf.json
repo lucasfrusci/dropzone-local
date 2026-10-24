@@ -14,7 +14,7 @@
       {
         "title": "Dropzone",
         "width": 340,
-        "height": 396,
+        "height": 376,
         "resizable": false,
         "decorations": false,
         "skipTaskbar": false,

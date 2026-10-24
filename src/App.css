@@ -5,7 +5,7 @@
   font-weight: 400;
 
   color: #0f0f0f;
-  background-color: #f6f6f6;
+  background-color: #f4f4f4;
   --acent-color: #646cffa0;
   --acent-color-dragging: #646cff20;
 
@@ -73,12 +73,13 @@
 
   align-content: center;
   text-align: center;
-  background-color: #ffffff;
-  transition: all 0.3s ease;
+  background-color: #e4e4e4;
+  
 }
 
 .dropzone.hover:hover {
   opacity: .6;
+  transition: all 0.3s ease;
 }
 
 .dropzone input{
@@ -150,7 +151,7 @@
   justify-content: space-between;
   border-radius: 6px;
   padding: 4px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 400;
   font-family: inherit;
   color: #0f0f0f;
@@ -168,7 +169,7 @@
 .action-shortcut {
   font-size: 12px;
   color: #666;
-  background-color: #f0f0f0;
+  background-color: transparent;
   padding: 0px 6px; /*2px 6px*/
   border-radius: 4px;
   font-family: monospace;
@@ -207,11 +208,11 @@
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
-    background-color: #2f2f2f;
+    background-color: #1f1f1f;
   }
 
   .dropzone {
-    background-color: #3f3f3f;
+    background-color: #2f2f2f;
     border-color: #555;
   }
 
@@ -248,7 +249,6 @@
 
   .action-shortcut {
     color: #aaa;
-    background-color: transparent;
   }
 
   .recent-uploads {

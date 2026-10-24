@@ -66,13 +66,13 @@ pub fn run() {
             {
                 let main_window = app.get_webview_window("main").unwrap();
                 let version = windows_version::OsVersion::current();
-
+                // ONLY FOR WINDOWS 11, I COMMENTED FOR WINDOWS 10 AND LOWER.
                 if version.major > 10 || (version.major == 10 && version.build >= 22000) {
                     apply_mica(&main_window, None).expect("Failed to apply mica effect");
                 } else if version.major == 10 {
-                    apply_acrylic(&main_window, None).expect("Failed to apply blur effect");
+                    //apply_acrylic(&main_window, None).expect("Failed to apply blur effect");
                 } else {
-                    apply_blur(&main_window, None).expect("Failed to apply blur effect");
+                    //apply_blur(&main_window, None).expect("Failed to apply blur effect");
                 }
             }
 
@@ -113,8 +113,9 @@ pub fn run() {
                         }
 
                         //let _ = window.move_window(Position::TrayCenter);
-                        //DESATIVEI ESSE ABAIXO, POR ENQUANTO VAMOS USAR O MODO ANTIGO.
-                        //let _ = app.emit("open_window", "Tray clicked!").unwrap();
+                        // LINE ABOVE COMMENTED CAUSE I USING OTHER WAY TO HANDLE WINDOW POSITION  THROUGH REACT.
+                        // EMIT "open_window" TO EXECUTE REACT FUNCTION THAT HANDLE THE WINDOW POSITION.
+                        let _ = app.emit("open_window", "Tray clicked!").unwrap();
                         
                     }
                     _ => {}
@@ -152,7 +153,7 @@ pub fn run() {
             close,
             get_appinfo,
             close_window,
-            open_link_wrapper
+            open_link_wrapper,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

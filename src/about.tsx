@@ -67,7 +67,8 @@ export const AboutWindow = () => {
   };
 
   const openProfile = (event: React.MouseEvent) => {
-    event.stopPropagation();
+    //COMENTEI O STOP PROPAGATION, QUANDO CLICA NO LINK JA FECHA A JANELA ABOUT...
+    //event.stopPropagation();
     try {
       invoke("open_link_wrapper", { link: "https://github.com/lucasfrusci" });
     } catch (e) {}
@@ -88,7 +89,7 @@ export const AboutWindow = () => {
         <span className="version"> v{appinfo?.version} alpha</span>
       </div>
       <span className="autor">Datasoft © 2027 All rights reserved</span>
-      <span className="autor github" onClick={(e) => openProfile(e)}>
+      <span className="autor github" onClick={openProfile}>
         github.com/lucasfrusci
       </span>
     </div>

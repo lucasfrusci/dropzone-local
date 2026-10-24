@@ -59,28 +59,28 @@ function App() {
     setTimeout(() => {
       setProgressBar(25);
       emitUploadProgress(25);
-    }, 1500);
+    }, 500);
 
     setTimeout(() => {
       setProgressBar(50);
       emitUploadProgress(50);
-    }, 1500 * 2);
+    }, 500 * 2);
 
     setTimeout(() => {
       setProgressBar(75);
       emitUploadProgress(75);
-    }, 1500 * 3);
+    }, 500 * 3);
 
     setTimeout(() => {
       setProgressBar(100);
       emitUploadProgress(100);
-    }, 1500 * 4);
+    }, 500 * 4);
 
     setTimeout(() => {
       setProgressBar(0);
       emitUploadProgress(0);
       setFilesQueue([]);
-    }, 1500 * 5);
+    }, 500 * 5);
   }
 
   const status =
