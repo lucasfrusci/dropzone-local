@@ -1,6 +1,6 @@
 [package]
 name = "dropzone"
-version = "0.2.0"
+version = "0.2.2"
 description = "A private file share handler"
 authors = ["you"]
 edition = "2024"
@@ -28,6 +28,7 @@ open = "5.4.4" # OPEN DEPENDENCY TO OPEN PROGRAM ON SYSTEM LIKE CHROME ETC...
 tauri-plugin-positioner = { version = "2.0.0", features = ["tray-icon"] }
 window-vibrancy = "0.8.1" # DEPENDENCY TO ALLOW EFFECTS LIKE MICCA BLUR ETC... TO FEELS LIKE A NATIVE APP.
 windows-version = "0.100.0"
+registry = "1.3.0"
 
 
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration

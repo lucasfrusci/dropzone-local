@@ -1,20 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
-import { openAboutWindow } from "./about";
+import { openAboutWindow } from "./windowUtils";
 import { useControlWindow } from "./hooks/useWindow";
-import { usePageView } from "./hooks/usePageView";
 import { useDropzone } from "react-dropzone";
 import { ProgressBar } from "./components/progress-bar";
 import { emit } from "@tauri-apps/api/event";
 import { MenuAction, MenuItems } from "./components/menu-item";
+import { useTheme } from "./hooks/useTheme";
 
 function App() {
+  useTheme();
   const { positionWindow, setWinOpen } = useControlWindow();
   const dropAreaRef = useRef<HTMLDivElement>(null);
   const [filesQueue, setFilesQueue] = useState<File[]>([]);
-
-  const { togglePage } = usePageView();
   const [recentUploads, setRecentUploads] = useState<string[]>([]);
   const [progressBar, setProgressBar] = useState<number>(0);
 
@@ -152,25 +151,17 @@ function App() {
       </div>
 
       <MenuItems.Root>
-        <MenuAction label="Select file" hotkey="Ctrl+O" action={open} />
+        <MenuAction label="Select file" hotkey="Ctrl+O" onClick={open} />
         {/* <MenuItems.Action
           label="Upload from clipboard"
           hotkey="Ctrl+Shift+V"
           action={open}
         /> */}
-        <MenuAction
-          label="Recent uploads"
-          hotkey="Ctrl+U"
-          action={() => togglePage("recents")}
-        />
-        <MenuAction
-          label="Settings"
-          hotkey="Ctrl+;"
-          action={() => togglePage("settings")}
-        />
+        <MenuAction label="Recent uploads" hotkey="Ctrl+U" />
+        <MenuAction label="Settings" hotkey="Ctrl+;" />
         <MenuAction label="Check for updates" />
-        <MenuAction label="About Dropzone" action={openAboutWindow} />
-        <MenuAction label="Close" hotkey="Ctrl+Q" action={handleClose} />
+        <MenuAction label="About Dropzone" onClick={openAboutWindow} />
+        <MenuAction label="Close" hotkey="Ctrl+Q" onClick={handleClose} />
       </MenuItems.Root>
 
       {/* {recentUploads.length > 0 && (

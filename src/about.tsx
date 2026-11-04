@@ -5,49 +5,8 @@ import {
 import { invoke } from "@tauri-apps/api/core";
 import "./about.css";
 import { useEffect, useState } from "react";
-import { event } from "@tauri-apps/api";
 import { LogicalPosition } from "@tauri-apps/api/dpi";
-
-//const isAbout = window.location.hash === "#about";
-
-export const openAboutWindow = async () => {
-  const existing = await WebviewWindow.getByLabel("about");
-  const mainWindow = getCurrentWebviewWindow();
-
-  const scaleFactor = await mainWindow.scaleFactor();
-
-  const mainPos = await mainWindow.outerPosition();
-
-  if (!mainPos) return;
-
-  const x = mainPos.x / scaleFactor + 20;
-  const y = mainPos.y / scaleFactor + 170; // 220 - 50 METADE DO HEIGHT DA JANELA - METADE DESSA JANELA
-
-  if (existing) {
-    existing.setPosition(new LogicalPosition(x, y));
-    existing.show();
-    existing.setFocus();
-    return;
-  }
-
-  const about = new WebviewWindow("about", {
-    url: "/#/about",
-    title: "About",
-    width: 300,
-    height: 100,
-    resizable: false,
-    maximizable: false,
-    minimizable: false,
-    decorations: false,
-    alwaysOnTop: true,
-    x: x,
-    y: y,
-  });
-
-  about.once("tauri://window-created", () =>
-    console.log("About window created."),
-  );
-};
+import { useTheme } from "./hooks/useTheme";
 
 type Appinfo = {
   version: string;
@@ -56,6 +15,7 @@ type Appinfo = {
 
 export const AboutWindow = () => {
   const [appinfo, setAppinfo] = useState<Appinfo | null>(null);
+  useTheme();
 
   const getAppinfo = async () => {
     try {

@@ -1,17 +1,20 @@
-import { ReactNode, useRef } from "react";
+import { HTMLAttributes, ReactNode, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
-export type MenuActionProps = {
+export type MenuActionProps = HTMLAttributes<HTMLDivElement> & {
   label: string;
   hotkey?: string;
-  action?: () => void;
 };
 
 const MenuItemRoot = ({ children }: { children: ReactNode }) => {
   return <div className="actions">{children}</div>;
 };
 
-export const MenuAction = ({ label, hotkey = "", action }: MenuActionProps) => {
+export const MenuAction = ({
+  label,
+  hotkey = "",
+  ...rest
+}: MenuActionProps) => {
   const optionRef = useRef<HTMLDivElement>(null);
   useHotkeys(
     hotkey,
@@ -29,7 +32,7 @@ export const MenuAction = ({ label, hotkey = "", action }: MenuActionProps) => {
     },
   );
   return (
-    <div ref={optionRef} className="action-item" onClick={action}>
+    <div ref={optionRef} className="action-item" {...rest}>
       <span className="action-label">{label}</span>
       {hotkey && <span className="action-shortcut">{hotkey}</span>}
     </div>

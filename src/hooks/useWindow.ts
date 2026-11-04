@@ -12,7 +12,6 @@ const MARGIN_BOTTOM = 68;
 
 export const useControlWindow = () => {
   const [winOpen, setWinOpen] = useState<boolean>(false);
-  const isTransparent = useRef(false);
 
   const positionWindow = useCallback(async () => {
     try {
@@ -37,26 +36,11 @@ export const useControlWindow = () => {
     }
   }, []);
 
-  // THIS FUNCTION CHANGE ROOT AND DRAG ELEMENT TO TRANSPARENT
-  // TO WORK THE MICA EFFECT, I DISABLED IT FOR NOW.
-  const setWindowEffect = useCallback(async () => {
-    try {
-      const root = document.documentElement;
-      const dragElement = <HTMLElement>(
-        document.getElementsByClassName("dropzone")[0]
-      );
-      root.style.backgroundColor = "transparent";
-      dragElement.style.backgroundColor = "transparent";
-    } catch (err) {
-      console.log("Error to set mica Effect.");
-    }
-  }, []);
-
   // const positionRef = useRef(positionWindow);
   // positionRef.current = positionWindow;
 
   useEffect(() => {
-    let unlisten: () => void | undefined;
+    let unlisten: (() => void) | undefined;
     let canceled = false;
 
     listen("open_window", () => positionWindow()).then((fn) => {

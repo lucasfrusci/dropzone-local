@@ -6,8 +6,8 @@
 
   color: #0f0f0f;
   background-color: #f4f4f4;
-  --acent-color: #646cffa0;
-  --acent-color-dragging: #646cff20;
+  --acent-color: #0078d4a0; /*#646cffa0*/
+  --acent-color-dragging: #0078d420;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -40,7 +40,6 @@
   height: 100vh;
   overflow: hidden;
   position: relative;
-  justify-content: space-between;
 }
 
 .drag-window-region {
@@ -74,12 +73,11 @@
   align-content: center;
   text-align: center;
   background-color: #e4e4e4;
-  
 }
 
 .dropzone.hover:hover {
   opacity: .6;
-  transition: all 0.3s ease;
+  
 }
 
 .dropzone input{
@@ -106,7 +104,7 @@
   margin: 0;
   font-size: 14px;
   font-weight: 500;
-  color: #0f0f0f;
+  color: #3f3f3f;
 }
 
 .dropzone-subtext {
@@ -154,11 +152,10 @@
   font-size: 12px;
   font-weight: 400;
   font-family: inherit;
-  color: #0f0f0f;
+  color: #2f2f2f; /*#0f0f0f*/
 }
 
 .action-item:hover {
-  color: #ffffff;
   background-color: var(--acent-color);
 }
 
@@ -169,7 +166,7 @@
 .action-shortcut {
   font-size: 12px;
   color: #666;
-  background-color: transparent;
+  background-color: #e4e4e4;
   padding: 0px 6px; /*2px 6px*/
   border-radius: 4px;
   font-family: monospace;
@@ -205,11 +202,11 @@
 }
 
 /*[data-theme="dark"] {*/
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #f6f6f6;
-    background-color: #1f1f1f;
-  }
+/* @media (prefers-color-scheme: dark) { */
+[data-theme="dark"] {
+
+  color: #f6f6f6;
+  background-color: #1f1f1f;
 
   .dropzone {
     background-color: #2f2f2f;
@@ -224,7 +221,7 @@
   }
 
   .dropzone-text {
-    color: #f6f6f6;
+    color: #d6d6d6; /*#f6f6f6*/
   }
 
   .dropzone-subtext {
@@ -244,11 +241,12 @@
   }
 
   .action-item {
-    color: #ffffff;
+    color: #d0d0d0; /*#f0f0f0*/
   }
 
   .action-shortcut {
     color: #aaa;
+    background-color: #2f2f2f;
   }
 
   .recent-uploads {

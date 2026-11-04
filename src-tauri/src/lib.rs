@@ -7,12 +7,14 @@ use serde::{Deserialize, Serialize};
 
 use window_vibrancy::{apply_mica, apply_acrylic, apply_blur};
 
+mod theme;
+
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Appinfo {
     version: String,
     name: String,
@@ -35,7 +37,7 @@ fn close(window: WebviewWindow) {
 #[tauri::command]
 fn close_window(name: &str, app_handle: tauri::AppHandle) {
     if let Some(window) = app_handle.get_webview_window(name) {
-        let _ = window.close().unwrap();
+        let _ = window.hide().unwrap();
     }
 }
 
@@ -154,6 +156,7 @@ pub fn run() {
             get_appinfo,
             close_window,
             open_link_wrapper,
+            theme::get_theme
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
