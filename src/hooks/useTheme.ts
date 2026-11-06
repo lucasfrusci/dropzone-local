@@ -7,9 +7,9 @@ type ThemeValue = {
 };
 
 type ThemeData = {
-  transparency: ThemeValue;
-  appUsesLight: ThemeValue;
-  accentColor: ThemeValue;
+  transparency: boolean;
+  appUsesLight: boolean;
+  accentColor: string;
 };
 
 export const useTheme = () => {
@@ -26,7 +26,7 @@ export const useTheme = () => {
 
   const toggleDarkMode = () => {
     const root = document.querySelector(":root");
-    if (themeData.current?.appUsesLight.Mode) {
+    if (themeData.current?.appUsesLight) {
       root?.setAttribute("data-theme", "light");
     } else {
       root?.setAttribute("data-theme", "dark");
@@ -34,7 +34,7 @@ export const useTheme = () => {
   };
 
   const setWindowEffect = () => {
-    if (!themeData.current?.transparency.Mode) return;
+    if (!themeData.current?.transparency) return;
     const root = document.documentElement;
     const dragElement = <HTMLElement>(
       document.getElementsByClassName("dropzone")[0]
@@ -45,8 +45,8 @@ export const useTheme = () => {
   };
 
   const setAccent = () => {
-    if (!themeData.current) return;
-    const accent = themeData.current.accentColor.HexValue.substring(0, 6);
+    if (!themeData.current?.accentColor) return;
+    const accent = themeData.current.accentColor.substring(0, 6);
     const root = document.documentElement;
     root.style.setProperty("--acent-color", `#${accent}60`);
     root.style.setProperty("--acent-color-dragging", `#${accent}20`);
