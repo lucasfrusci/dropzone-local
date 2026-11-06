@@ -1,10 +1,15 @@
 import { invoke } from "@tauri-apps/api/core";
 import { memo, useEffect, useRef } from "react";
 
+type ThemeValue = {
+  HexValue: string;
+  Mode: boolean;
+};
+
 type ThemeData = {
-  transparency: boolean;
-  appUsesLight: boolean;
-  accentColor: string;
+  transparency: ThemeValue;
+  appUsesLight: ThemeValue;
+  accentColor: ThemeValue;
 };
 
 export const useTheme = () => {
@@ -21,7 +26,7 @@ export const useTheme = () => {
 
   const toggleDarkMode = () => {
     const root = document.querySelector(":root");
-    if (themeData.current?.appUsesLight) {
+    if (themeData.current?.appUsesLight.Mode) {
       root?.setAttribute("data-theme", "light");
     } else {
       root?.setAttribute("data-theme", "dark");
@@ -29,7 +34,7 @@ export const useTheme = () => {
   };
 
   const setWindowEffect = () => {
-    if (!themeData.current) return;
+    if (!themeData.current?.transparency.Mode) return;
     const root = document.documentElement;
     const dragElement = <HTMLElement>(
       document.getElementsByClassName("dropzone")[0]
@@ -41,7 +46,7 @@ export const useTheme = () => {
 
   const setAccent = () => {
     if (!themeData.current) return;
-    const accent = themeData.current.accentColor.substring(0, 6);
+    const accent = themeData.current.accentColor.HexValue.substring(0, 6);
     const root = document.documentElement;
     root.style.setProperty("--acent-color", `#${accent}60`);
     root.style.setProperty("--acent-color-dragging", `#${accent}20`);

@@ -7,28 +7,69 @@ const SYSREGPATH: &str = r"Software\Microsoft\Windows\CurrentVersion\Themes\Pers
 const ACCENTPATH: &str = r"Software\Microsoft\Windows\CurrentVersion\Themes\Accent";
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct ThemeData {
-    transparency: bool,
-    app_uses_light: bool,
-    accent_color: String,
+// #[serde(untagged)] PASS THE VALUE DIRECTLY WITHOUT OBJECT, I WILL DISABLE THIS FOR NOW.
+pub enum ThemeValue {
+    HexValue(String),
+    Mode(bool),
 }
 
-fn get_system_theme(regkey: &str) -> Result<bool, ()> {
-    let regpath = Hive::CurrentUser.open(SYSREGPATH, Security::Read);
-
-    if let Ok(key) = regpath {
-        if let Ok(value) = key.value(regkey) {
-            return match value {
-                Data::U32(1) => Ok(true),
-                _ => Err(())
-            };
+//IMPL NOT USED ANYMORE
+impl ThemeValue {
+    pub fn to_bool(self) -> Option<bool> {
+        match self {
+            ThemeValue::Mode(val) => Some(val),
+            _ => None,
         }
     }
-    Err(())
+
+    pub fn to_string(self) -> Option<String> {
+        match self {
+            ThemeValue::HexValue(val) => Some(val),
+            _ => None,
+        }
+    }
 }
 
-fn get_accent() -> Result<String, ()> {
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct ThemeData {
+    transparency: ThemeValue,
+    app_uses_light: ThemeValue,
+    accent_color: ThemeValue,
+}
+
+impl ThemeData {
+    pub fn fetch_system() -> Self {
+        //OLD MODE WHEN THEMEDATA VALUES WAS RETURNED BOOLEAN AND STRING
+        //NOW I PASSED VALUE OF THE ENUM THEMEVALUE ON THE VALUES
+        // ThemeData {
+        //     transparency: Self::get_system_theme("EnableTransparency", SYSREGPATH).ok().and_then(|t| t.to_bool()).unwrap_or(false),
+        //     app_uses_light: Self::get_system_theme("AppsUseLightTheme", SYSREGPATH).ok().and_then(|t| t.to_bool()).unwrap_or(false),
+        //     accent_color: Self::get_system_theme("AccentColor", ACCENTPATH).ok().and_then(|t| t.to_string()).unwrap_or(String::from("0078d4")),
+        // }
+
+        ThemeData {
+            transparency: Self::get_system_theme("EnableTransparency", SYSREGPATH).unwrap_or(ThemeValue::Mode(false)),
+            app_uses_light: Self::get_system_theme("AppsUseLightTheme", SYSREGPATH).unwrap_or(ThemeValue::Mode(false)),
+            accent_color: Self::get_system_theme("AccentColor", ACCENTPATH).unwrap_or(ThemeValue::HexValue("0078d4".to_string())),
+        }
+    }
+
+    fn get_system_theme(key: &str, path: &str) -> Result<ThemeValue, ()> {
+        let reg = Hive::CurrentUser.open(path, Security::Read).map_err(|_| ())?;
+    
+        let value = reg.value(key).map_err(|_| ())?;
+    
+        match value {
+            Data::U32(1) => Ok(ThemeValue::Mode(true)),
+            Data::String(_) => Ok(ThemeValue::HexValue(value.to_string())),
+            _ => Err(())
+        }
+    }
+}
+
+//OLD FUNCTION NOT USED ANYMORE
+fn fetch_accent() -> Result<String, ()> {
     let regpath = Hive::CurrentUser.open(ACCENTPATH, Security::Read);
 
     if let Ok(key) = regpath {
@@ -44,14 +85,5 @@ fn get_accent() -> Result<String, ()> {
 
 #[tauri::command]
 pub fn get_theme() -> ThemeData {
-    let get_transparent = get_system_theme("EnableTransparency").unwrap_or(false);
-    let get_app_light = get_system_theme("AppsUseLightTheme").unwrap_or(false);
-    let get_accent = get_accent().unwrap_or("0078d4".to_string());
-
-    let data = ThemeData {
-        transparency: get_transparent,
-        app_uses_light: get_app_light,
-        accent_color: get_accent.to_string(),
-    };
-    data
+    ThemeData::fetch_system()
 }
