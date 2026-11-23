@@ -26,6 +26,23 @@
     color: var(--acent-color);
 }
 
+.updates-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    text-align: center;
+}
+
+.updates-content strong {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.updates-content > span:not(.autor) {
+    font-size: 12px;
+}
+
 [data-theme="dark"] {
     .about-window {
         color: #f6f6f6;

@@ -1,11 +1,10 @@
-import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import {
   currentMonitor,
   getCurrentWindow,
   LogicalPosition,
 } from "@tauri-apps/api/window";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const MARGIN_RIGHT = 68;
 const MARGIN_BOTTOM = 68;

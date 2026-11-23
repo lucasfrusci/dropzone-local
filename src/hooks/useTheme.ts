@@ -1,10 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
-import { memo, useEffect, useRef } from "react";
-
-type ThemeValue = {
-  HexValue: string;
-  Mode: boolean;
-};
+import { listen } from "@tauri-apps/api/event";
+import { useEffect } from "react";
+import { getSettings, ThemePreference } from "../settingsStore";
 
 type ThemeData = {
   transparency: boolean;
@@ -13,51 +10,44 @@ type ThemeData = {
 };
 
 export const useTheme = () => {
-  const themeData = useRef<ThemeData | null>(null);
-  const getThemeData = async () => {
-    try {
-      const data: ThemeData = await invoke("get_theme", {});
-      console.log(data);
-      themeData.current = data;
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const toggleDarkMode = () => {
-    const root = document.querySelector(":root");
-    if (themeData.current?.appUsesLight) {
-      root?.setAttribute("data-theme", "light");
-    } else {
-      root?.setAttribute("data-theme", "dark");
-    }
-  };
-
-  const setWindowEffect = () => {
-    if (!themeData.current?.transparency) return;
-    const root = document.documentElement;
-    const dragElement = <HTMLElement>(
-      document.getElementsByClassName("dropzone")[0]
-    );
-
-    root.style.backgroundColor = "transparent";
-    //if (dragElement) dragElement.style.backgroundColor = "transparent";
-  };
-
-  const setAccent = () => {
-    if (!themeData.current?.accentColor) return;
-    const accent = themeData.current.accentColor.substring(0, 6);
-    const root = document.documentElement;
-    root.style.setProperty("--acent-color", `#${accent}60`);
-    root.style.setProperty("--acent-color-dragging", `#${accent}20`);
-  };
-
   useEffect(() => {
-    if (themeData.current) return;
-    getThemeData().then(() => {
-      setAccent();
-      setWindowEffect();
-      toggleDarkMode();
+    let unlisten: (() => void) | undefined;
+    let canceled = false;
+
+    const applyTheme = async (override?: ThemePreference) => {
+      try {
+        const themeData = await invoke<ThemeData>("get_theme");
+        const preference = override ?? getSettings().theme;
+        const useLightTheme =
+          preference === "system"
+            ? themeData.appUsesLight
+            : preference === "light";
+        const root = document.documentElement;
+
+        root.setAttribute("data-theme", useLightTheme ? "light" : "dark");
+        if (themeData.transparency) root.style.backgroundColor = "transparent";
+
+        const accent = themeData.accentColor.substring(0, 6);
+        if (accent) {
+          root.style.setProperty("--acent-color", `#${accent}60`);
+          root.style.setProperty("--acent-color-dragging", `#${accent}20`);
+        }
+      } catch (error) {
+        console.error("Não foi possível carregar o tema do sistema:", error);
+      }
+    };
+
+    void applyTheme();
+    listen<ThemePreference>("dropzone-theme-changed", (event) => {
+      void applyTheme(event.payload);
+    }).then((unsubscribe) => {
+      if (canceled) unsubscribe();
+      else unlisten = unsubscribe;
     });
+
+    return () => {
+      canceled = true;
+      unlisten?.();
+    };
   }, []);
 };

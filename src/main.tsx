@@ -2,7 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { createHashRouter, RouterProvider } from "react-router-dom";
-import { AboutWindow } from "./about";
+import { InfoWindow } from "./about";
+import { RecentFilesWindow } from "./recent-window";
+import { SettingsWindow } from "./settings-window";
 
 const router = createHashRouter([
   {
@@ -10,8 +12,20 @@ const router = createHashRouter([
     element: <App />,
   },
   {
+    path: "/info",
+    element: <InfoWindow />,
+  },
+  {
     path: "/about",
-    element: <AboutWindow />,
+    element: <InfoWindow />,
+  },
+  {
+    path: "/recent",
+    element: <RecentFilesWindow />,
+  },
+  {
+    path: "/settings",
+    element: <SettingsWindow />,
   },
 ]);
 

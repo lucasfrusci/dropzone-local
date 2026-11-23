@@ -1,13 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
-import { openAboutWindow } from "./windowUtils";
+import {
+  openAboutWindow,
+  openCheckUpdatesWindow,
+  openRecentFilesWindow,
+  openSettingsWindow,
+} from "./windowUtils";
 import { useControlWindow } from "./hooks/useWindow";
 import { useDropzone } from "react-dropzone";
-import { ProgressBar } from "./components/progress-bar";
-import { emit } from "@tauri-apps/api/event";
+import { listen } from "@tauri-apps/api/event";
 import { MenuAction, MenuItems } from "./components/menu-item";
 import { useTheme } from "./hooks/useTheme";
+import { addRecentFiles } from "./recentFiles";
 
 type DiscoveredDevice = {
   id: string;
@@ -15,15 +20,37 @@ type DiscoveredDevice = {
   address: string;
 };
 
+type IncomingFileRequest = {
+  requestId: string;
+  senderName: string;
+  fileName: string;
+  fileSize: number;
+};
+
+type FileOfferResponse = {
+  requestId: string;
+  fileName: string;
+  accepted: boolean;
+};
+
+const formatFileSize = (size: number) => {
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  if (size < 1024 * 1024 * 1024)
+    return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(size / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+};
+
 function App() {
   useTheme();
   const { positionWindow, setWinOpen } = useControlWindow();
   const dropAreaRef = useRef<HTMLDivElement>(null);
   const [filesQueue, setFilesQueue] = useState<File[]>([]);
-  const [recentUploads, setRecentUploads] = useState<string[]>([]);
-  const [progressBar, setProgressBar] = useState<number>(0);
   const [selectedDevice, setSelectedDevice] = useState("");
   const [availableDevices, setAvailableDevices] = useState<DiscoveredDevice[]>([]);
+  const [sendMessage, setSendMessage] = useState("");
+  const [incomingRequests, setIncomingRequests] = useState<IncomingFileRequest[]>([]);
+  const [requestError, setRequestError] = useState("");
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop: handleStartUpload,
@@ -41,53 +68,30 @@ function App() {
     }
   };
 
-  async function handlePaste(event: ClipboardEvent) {
-    const items = event.clipboardData?.items;
-
-    if (!items) return;
-
-    for (const i in items) {
-      const item = items[i];
-
-      if (item.kind === "file") {
-        const blob = item.getAsFile();
-        setFilesQueue((state) => ({ ...state, blob }));
-      }
+  async function handleStartUpload(files: File[]) {
+    if (!selectedDevice) {
+      setSendMessage("Selecione um computador antes de escolher os arquivos.");
+      return;
     }
-  }
 
-  const emitUploadProgress = (progress: number) => {
-    emit("progress", { progress });
-  };
-
-  function handleStartUpload(files: File[]) {
+    const target = availableDevices.find((device) => device.id === selectedDevice);
+    setSendMessage(`Solicitando autorização de ${target?.name ?? "outro computador"}...`);
     setFilesQueue(files);
+    addRecentFiles(files);
 
-    setTimeout(() => {
-      setProgressBar(25);
-      emitUploadProgress(25);
-    }, 500);
-
-    setTimeout(() => {
-      setProgressBar(50);
-      emitUploadProgress(50);
-    }, 500 * 2);
-
-    setTimeout(() => {
-      setProgressBar(75);
-      emitUploadProgress(75);
-    }, 500 * 3);
-
-    setTimeout(() => {
-      setProgressBar(100);
-      emitUploadProgress(100);
-    }, 500 * 4);
-
-    setTimeout(() => {
-      setProgressBar(0);
-      emitUploadProgress(0);
+    try {
+      for (const file of files) {
+        await invoke("send_file_offer", {
+          targetId: selectedDevice,
+          fileName: file.name,
+          fileSize: file.size,
+        });
+      }
+      setSendMessage("Pedido enviado. Aguardando a resposta do outro computador.");
+    } catch (error) {
       setFilesQueue([]);
-    }, 500 * 5);
+      setSendMessage(`Não foi possível enviar o pedido: ${String(error)}`);
+    }
   }
 
   const status =
@@ -97,6 +101,60 @@ function App() {
     //POSITION THE WINDOW ON BOTTOM RIGHT, OPEN WINDOW AFTER START APP.
     positionWindow();
   }, []);
+
+  useEffect(() => {
+    let unlistenIncoming: (() => void) | undefined;
+    let unlistenResponse: (() => void) | undefined;
+    let canceled = false;
+
+    Promise.all([
+      listen<IncomingFileRequest>("incoming-file-request", (event) => {
+        setRequestError("");
+        setIncomingRequests((current) =>
+          current.some((request) => request.requestId === event.payload.requestId)
+            ? current
+            : [...current, event.payload],
+        );
+      }),
+      listen<FileOfferResponse>("file-offer-response", (event) => {
+        setFilesQueue([]);
+        setSendMessage(
+          event.payload.accepted
+            ? `O pedido para “${event.payload.fileName}” foi aceito. A transferência será habilitada em seguida.`
+            : `O pedido para “${event.payload.fileName}” foi cancelado no outro computador.`,
+        );
+      }),
+    ]).then(([stopIncoming, stopResponse]) => {
+      if (canceled) {
+        stopIncoming();
+        stopResponse();
+      } else {
+        unlistenIncoming = stopIncoming;
+        unlistenResponse = stopResponse;
+      }
+    });
+
+    return () => {
+      canceled = true;
+      unlistenIncoming?.();
+      unlistenResponse?.();
+    };
+  }, []);
+
+  const respondToRequest = async (request: IncomingFileRequest, accepted: boolean) => {
+    try {
+      await invoke("respond_to_file_request", {
+        requestId: request.requestId,
+        accepted,
+      });
+      setIncomingRequests((current) =>
+        current.filter((item) => item.requestId !== request.requestId),
+      );
+      setRequestError("");
+    } catch (error) {
+      setRequestError(`Não foi possível responder: ${String(error)}`);
+    }
+  };
 
   useEffect(() => {
     const refreshDevices = async () => {
@@ -178,22 +236,50 @@ function App() {
             </>
           )}
 
-          {status === "accept" &&
-            (filesQueue.length > 1 ? (
-              <p className="dropzone-subtext">
-                Uploading {filesQueue.length} file(s)...
-              </p>
-            ) : (
-              <p className="dropzone-subtext">
-                Uploading{" "}
-                {filesQueue[0].name.length > 30
-                  ? filesQueue[0].name.substring(0, 30).concat("...")
-                  : filesQueue[0].name}
-              </p>
-            ))}
-          {status === "accept" && <ProgressBar status={progressBar} />}
+          {status === "accept" && (
+            <p className="dropzone-subtext">
+              {filesQueue.length === 1
+                ? filesQueue[0].name
+                : `${filesQueue.length} arquivos selecionados`}
+            </p>
+          )}
         </div>
       </div>
+
+      {sendMessage && <p className="send-feedback">{sendMessage}</p>}
+
+      {incomingRequests.length > 0 && (
+        <div className="incoming-request-backdrop">
+          <section className="incoming-request" role="alertdialog" aria-modal="true">
+            <p className="incoming-request-eyebrow">ARQUIVO RECEBIDO</p>
+            <h2>{incomingRequests[0].senderName} quer enviar um arquivo</h2>
+            <div className="incoming-file-card">
+              <span className="incoming-file-icon">▤</span>
+              <div>
+                <strong title={incomingRequests[0].fileName}>
+                  {incomingRequests[0].fileName}
+                </strong>
+                <span>{formatFileSize(incomingRequests[0].fileSize)}</span>
+              </div>
+            </div>
+            {requestError && <p className="incoming-request-error">{requestError}</p>}
+            <div className="incoming-request-actions">
+              <button
+                className="request-cancel"
+                onClick={() => respondToRequest(incomingRequests[0], false)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="request-accept"
+                onClick={() => respondToRequest(incomingRequests[0], true)}
+              >
+                Aceitar
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
 
       <MenuItems.Root>
         <MenuAction label="Select file" hotkey="Ctrl+O" onClick={open} />
@@ -202,23 +288,20 @@ function App() {
           hotkey="Ctrl+Shift+V"
           action={open}
         /> */}
-        <MenuAction label="Recent uploads" hotkey="Ctrl+U" />
-        <MenuAction label="Settings" hotkey="Ctrl+;" />
-        <MenuAction label="Check for updates" />
+        <MenuAction
+          label="Recent uploads"
+          hotkey="Ctrl+U"
+          onClick={openRecentFilesWindow}
+        />
+        <MenuAction
+          label="Settings"
+          hotkey="Ctrl+;"
+          onClick={openSettingsWindow}
+        />
+        <MenuAction label="Check for updates" onClick={openCheckUpdatesWindow} />
         <MenuAction label="About Dropzone" onClick={openAboutWindow} />
         <MenuAction label="Close" hotkey="Ctrl+Q" onClick={handleClose} />
       </MenuItems.Root>
-
-      {/* {recentUploads.length > 0 && (
-          <div className="recent-uploads">
-            <h3>Recent Uploads</h3>
-            <ul className="recent-list">
-              {recentUploads.map((upload, index) => (
-                <li key={index}>{upload}</li>
-              ))}
-            </ul>
-          </div>
-        )} */}
 
       {/* <SettingsView changePage={() => togglePage("settings")} />
       <RecentsListView changePage={() => togglePage("recents")} /> */}

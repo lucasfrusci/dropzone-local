@@ -164,7 +164,9 @@ pub fn run() {
             close_window,
             open_link_wrapper,
             theme::get_theme,
-            network_discovery::get_discovered_devices
+            network_discovery::get_discovered_devices,
+            network_discovery::send_file_offer,
+            network_discovery::respond_to_file_request
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
