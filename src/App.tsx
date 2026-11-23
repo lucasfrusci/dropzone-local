@@ -106,7 +106,7 @@ function App() {
       >
         <input {...getInputProps()} />
 
-        {status === "active" && "Start Upload..."}
+        {status === "active" && "Drop file(s) here..."}
 
         <div className="dropzone-content">
           {status === "pending" && (

@@ -54,10 +54,9 @@ impl ThemeData {
     //         app_uses_light: Self::get_system_theme("AppsUseLightTheme", PERSREGPATH).unwrap_or(ThemeValue::Mode(false)),
     //         accent_color: Self::get_system_theme("AccentColor", ACCENTPATH).unwrap_or(ThemeValue::HexValue("0078d4".to_string())),
     //     }
-    // }
 
     // I CHOSE RESULT WITH FALLBACK INSTEAD ONLY THEMEDATA, 
-    // CAUSE I CAN HANDLE IT WHEN CALL IT.
+    // BECAUSE I CAN HANDLE IT WHEN CALL IT.
     fn get_system_theme() -> Result<Self, ()> {
         let (transparency_u32, light_u32) = match Hive::CurrentUser.open(PERSREGPATH, Security::Read) {
             Ok(reg) => {
