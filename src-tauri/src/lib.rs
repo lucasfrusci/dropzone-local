@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 use window_vibrancy::{apply_mica, apply_acrylic, apply_blur};
 
 mod theme;
+mod network_discovery;
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -54,11 +55,17 @@ fn open_link(link: &str) -> Result<(), Box<dyn std::error::Error>> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .manage(network_discovery::DiscoveryState::default())
         .plugin(tauri_plugin_positioner::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .setup(|app| {
+            network_discovery::start(
+                app.handle().clone(),
+                &app.state::<network_discovery::DiscoveryState>(),
+            );
+
             let show = tauri::menu::MenuItem::with_id(app, "show", "Abrir", true, None::<&str>)?;
             let quit = tauri::menu::MenuItem::with_id(app, "quit", "Fechar", true, None::<&str>)?;
 
@@ -156,7 +163,8 @@ pub fn run() {
             get_appinfo,
             close_window,
             open_link_wrapper,
-            theme::get_theme
+            theme::get_theme,
+            network_discovery::get_discovered_devices
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

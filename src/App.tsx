@@ -9,6 +9,12 @@ import { emit } from "@tauri-apps/api/event";
 import { MenuAction, MenuItems } from "./components/menu-item";
 import { useTheme } from "./hooks/useTheme";
 
+type DiscoveredDevice = {
+  id: string;
+  name: string;
+  address: string;
+};
+
 function App() {
   useTheme();
   const { positionWindow, setWinOpen } = useControlWindow();
@@ -16,6 +22,8 @@ function App() {
   const [filesQueue, setFilesQueue] = useState<File[]>([]);
   const [recentUploads, setRecentUploads] = useState<string[]>([]);
   const [progressBar, setProgressBar] = useState<number>(0);
+  const [selectedDevice, setSelectedDevice] = useState("");
+  const [availableDevices, setAvailableDevices] = useState<DiscoveredDevice[]>([]);
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop: handleStartUpload,
@@ -90,9 +98,46 @@ function App() {
     positionWindow();
   }, []);
 
+  useEffect(() => {
+    const refreshDevices = async () => {
+      try {
+        const devices = await invoke<DiscoveredDevice[]>("get_discovered_devices");
+        setAvailableDevices(devices);
+      } catch (error) {
+        console.error("Não foi possível consultar os computadores da rede:", error);
+      }
+    };
+
+    void refreshDevices();
+    const interval = window.setInterval(refreshDevices, 2000);
+    return () => window.clearInterval(interval);
+  }, []);
+
   return (
     <main className="dropzone-container">
       <div className="drag-window-region" data-tauri-drag-region></div>
+
+      <label className="device-picker">
+        <span className="device-picker-label">Enviar para</span>
+        <select
+          className="device-picker-select"
+          value={selectedDevice}
+          onChange={(event) => setSelectedDevice(event.target.value)}
+          disabled={availableDevices.length === 0}
+          aria-label="Computador de destino"
+        >
+          <option value="">
+            {availableDevices.length === 0
+              ? "Nenhum computador conectado"
+              : "Selecione um computador"}
+          </option>
+          {availableDevices.map((device) => (
+            <option key={device.id} value={device.id}>
+              {device.name} ({device.address})
+            </option>
+          ))}
+        </select>
+      </label>
 
       <div
         ref={dropAreaRef}

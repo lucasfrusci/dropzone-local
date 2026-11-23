@@ -62,6 +62,38 @@
   font-weight: 600;
 }
 
+.device-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  max-width: 320px;
+  margin: 4px 0 12px;
+}
+
+.device-picker-label {
+  color: #555;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.device-picker-select {
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 30px 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #e4e4e4;
+  color: #2f2f2f;
+  font: inherit;
+  font-size: 13px;
+}
+
+.device-picker-select:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
 .dropzone {
   width: 100%;
   max-width: 320px;
@@ -207,6 +239,16 @@
 
   color: #f6f6f6;
   background-color: #1f1f1f;
+
+  .device-picker-label {
+    color: #aaa;
+  }
+
+  .device-picker-select {
+    border-color: #555;
+    background-color: #2f2f2f;
+    color: #d0d0d0;
+  }
 
   .dropzone {
     background-color: #2f2f2f;
