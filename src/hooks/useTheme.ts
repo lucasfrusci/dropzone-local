@@ -25,7 +25,8 @@ export const useTheme = () => {
         const root = document.documentElement;
 
         root.setAttribute("data-theme", useLightTheme ? "light" : "dark");
-        if (themeData.transparency) root.style.backgroundColor = "transparent";
+        //TEMPORARILY DISABLED
+        //if (themeData.transparency) root.style.backgroundColor = "transparent";
 
         const accent = themeData.accentColor.substring(0, 6);
         if (accent) {

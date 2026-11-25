@@ -99,7 +99,7 @@ pub fn run() {
                 .show_menu_on_left_click(false)
                 .icon_as_template(true)
                 .icon(_icon.clone())
-                .tooltip("Datasoft Dropzone")
+                .tooltip("Dropzone")
                 .on_tray_icon_event(|tray, event| match event {
                     tauri::tray::TrayIconEvent::Click {
                         button: tauri::tray::MouseButton::Left,

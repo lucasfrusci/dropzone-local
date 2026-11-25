@@ -47,9 +47,13 @@ function App() {
   const dropAreaRef = useRef<HTMLDivElement>(null);
   const [filesQueue, setFilesQueue] = useState<File[]>([]);
   const [selectedDevice, setSelectedDevice] = useState("");
-  const [availableDevices, setAvailableDevices] = useState<DiscoveredDevice[]>([]);
+  const [availableDevices, setAvailableDevices] = useState<DiscoveredDevice[]>(
+    [],
+  );
   const [sendMessage, setSendMessage] = useState("");
-  const [incomingRequests, setIncomingRequests] = useState<IncomingFileRequest[]>([]);
+  const [incomingRequests, setIncomingRequests] = useState<
+    IncomingFileRequest[]
+  >([]);
   const [requestError, setRequestError] = useState("");
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
@@ -74,8 +78,12 @@ function App() {
       return;
     }
 
-    const target = availableDevices.find((device) => device.id === selectedDevice);
-    setSendMessage(`Solicitando autorização de ${target?.name ?? "outro computador"}...`);
+    const target = availableDevices.find(
+      (device) => device.id === selectedDevice,
+    );
+    setSendMessage(
+      `Solicitando autorização de ${target?.name ?? "outro computador"}...`,
+    );
     setFilesQueue(files);
     addRecentFiles(files);
 
@@ -87,7 +95,9 @@ function App() {
           fileSize: file.size,
         });
       }
-      setSendMessage("Pedido enviado. Aguardando a resposta do outro computador.");
+      setSendMessage(
+        "Pedido enviado. Aguardando a resposta do outro computador.",
+      );
     } catch (error) {
       setFilesQueue([]);
       setSendMessage(`Não foi possível enviar o pedido: ${String(error)}`);
@@ -111,7 +121,9 @@ function App() {
       listen<IncomingFileRequest>("incoming-file-request", (event) => {
         setRequestError("");
         setIncomingRequests((current) =>
-          current.some((request) => request.requestId === event.payload.requestId)
+          current.some(
+            (request) => request.requestId === event.payload.requestId,
+          )
             ? current
             : [...current, event.payload],
         );
@@ -141,7 +153,10 @@ function App() {
     };
   }, []);
 
-  const respondToRequest = async (request: IncomingFileRequest, accepted: boolean) => {
+  const respondToRequest = async (
+    request: IncomingFileRequest,
+    accepted: boolean,
+  ) => {
     try {
       await invoke("respond_to_file_request", {
         requestId: request.requestId,
@@ -159,10 +174,15 @@ function App() {
   useEffect(() => {
     const refreshDevices = async () => {
       try {
-        const devices = await invoke<DiscoveredDevice[]>("get_discovered_devices");
+        const devices = await invoke<DiscoveredDevice[]>(
+          "get_discovered_devices",
+        );
         setAvailableDevices(devices);
       } catch (error) {
-        console.error("Não foi possível consultar os computadores da rede:", error);
+        console.error(
+          "Não foi possível consultar os computadores da rede:",
+          error,
+        );
       }
     };
 
@@ -201,20 +221,21 @@ function App() {
         ref={dropAreaRef}
         {...getRootProps()}
         data-status={status}
-        className={`dropzone ${status === "active" && "dragging"} ${status === "pending" && "hover"}`}
-        onClick={open}
+        className={`dropzone ${status === "active" && "dragging"} ${status === "pending" && "hover"} ${!selectedDevice && "disabled"}`}
+        onClick={() => {
+          selectedDevice && open;
+        }}
         // onDragOver={handleDragOver}
         // onDragLeave={handleDragLeave}
         // onDrop={handleDrop}
       >
         <input {...getInputProps()} />
 
-        {status === "active" && "Drop file(s) here..."}
+        {/* {status === "active" && "Drop file(s) here..."} */}
 
         <div className="dropzone-content">
-          {status === "pending" && (
-            <>
-              {/* <svg
+          <>
+            {/* <svg
                 id="upload-icon"
                 width="32"
                 height="32"
@@ -227,14 +248,13 @@ function App() {
                 <polyline points="17 8 12 3 7 8" />
                 <line x1="12" y1="3" x2="12" y2="15" />
               </svg> */}
-              <p className="dropzone-text">
-                {isDragActive
-                  ? "Solte os arquivos aqui"
-                  : "Arraste arquivos aqui"}
-              </p>
-              <p className="dropzone-subtext">ou use as opções abaixo</p>
-            </>
-          )}
+            <p className="dropzone-text">
+              {isDragActive
+                ? "Solte os arquivos aqui"
+                : "Arraste arquivos aqui"}
+            </p>
+            <p className="dropzone-subtext">ou use as opções abaixo</p>
+          </>
 
           {status === "accept" && (
             <p className="dropzone-subtext">
@@ -250,7 +270,11 @@ function App() {
 
       {incomingRequests.length > 0 && (
         <div className="incoming-request-backdrop">
-          <section className="incoming-request" role="alertdialog" aria-modal="true">
+          <section
+            className="incoming-request"
+            role="alertdialog"
+            aria-modal="true"
+          >
             <p className="incoming-request-eyebrow">ARQUIVO RECEBIDO</p>
             <h2>{incomingRequests[0].senderName} quer enviar um arquivo</h2>
             <div className="incoming-file-card">
@@ -262,7 +286,9 @@ function App() {
                 <span>{formatFileSize(incomingRequests[0].fileSize)}</span>
               </div>
             </div>
-            {requestError && <p className="incoming-request-error">{requestError}</p>}
+            {requestError && (
+              <p className="incoming-request-error">{requestError}</p>
+            )}
             <div className="incoming-request-actions">
               <button
                 className="request-cancel"
@@ -298,7 +324,10 @@ function App() {
           hotkey="Ctrl+;"
           onClick={openSettingsWindow}
         />
-        <MenuAction label="Check for updates" onClick={openCheckUpdatesWindow} />
+        <MenuAction
+          label="Check for updates"
+          onClick={openCheckUpdatesWindow}
+        />
         <MenuAction label="About Dropzone" onClick={openAboutWindow} />
         <MenuAction label="Close" hotkey="Ctrl+Q" onClick={handleClose} />
       </MenuItems.Root>

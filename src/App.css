@@ -64,7 +64,7 @@
 
 .device-picker {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 5px;
   width: 100%;
   max-width: 320px;
@@ -80,7 +80,7 @@
 .device-picker-select {
   width: 100%;
   min-height: 36px;
-  padding: 6px 30px 6px 10px;
+  padding: 6px 30px 6px 2px;
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: #e4e4e4;
@@ -91,7 +91,7 @@
 
 .device-picker-select:disabled {
   cursor: default;
-  opacity: 0.75;
+  opacity: 0.55;
 }
 
 .dropzone {
@@ -119,6 +119,10 @@
 .dropzone.dragging {
   border-color: var(--acent-color);
   background-color: var(--acent-color-dragging);
+}
+
+.dropzone.disabled {
+  opacity: 0.55;
 }
 
 .dropzone-content {
