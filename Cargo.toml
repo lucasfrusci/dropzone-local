@@ -1,0 +1,35 @@
+[package]
+name = "dropzone"
+version = "0.2.2"
+description = "A private file share handler"
+authors = ["you"]
+edition = "2024"
+
+[dependencies]
+eframe = { version = "0.37", default-features = false, features = [
+    "default_fonts",
+    "glow",
+    "clipboard",
+    "wayland",
+    "x11",
+] }
+egui = "0.37"
+rfd = "0.18"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+windows = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_System_Registry",
+    "Win32_System_Threading",
+    "Win32_Graphics_Gdi",
+    "Win32_UI_WindowsAndMessaging",
+] }
+tray-icon = "0.8"
+notify-rust = "4.19.0"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+panic = "abort"
+strip = true

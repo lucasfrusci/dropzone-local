@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(git checkout onlyrust)",
+      "PowerShell(cargo build 2>&1)",
+      "PowerShell(head -100)"
+    ]
+  }
+}
