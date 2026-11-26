@@ -6,7 +6,12 @@
   padding: 24px;
   overflow: hidden;
   color: #242424;
-  background: #f4f4f4;
+  background: radial-gradient(ellipse 80% 50% at 95% 5%, #fdffff 0%, #fdffff 50%, #fcfffd 100%),
+              radial-gradient(ellipse 65% 35% at 5% 95%, #fdfffd 0%, #fdfffe 50%, #fcfffd 100%),
+              linear-gradient(135deg, #fdffff 0%, #f9fbf9 50%, #f8fbf9 100%),
+              rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-radius: 12px;
   font-family: inherit;
 }
@@ -211,7 +216,11 @@
 
 [data-theme="dark"] .utility-window {
   color: #f1f1f1;
-  background: #1f1f1f;
+  background: radial-gradient(ellipse 70% 45% at 90% 10%, rgba(0, 120, 212, 0.002) 0%, #1a1b20 70%),
+              radial-gradient(ellipse 55% 35% at 10% 90%, rgba(0, 120, 212, 0.001) 0%, #181a1f 70%),
+              linear-gradient(135deg, #1c1e23 0%, #1a1b20 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 [data-theme="dark"] .utility-eyebrow,

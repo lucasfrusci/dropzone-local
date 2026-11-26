@@ -5,8 +5,12 @@
   font-weight: 400;
 
   color: #0f0f0f;
-  background-color: #f4f4f4;
-  --acent-color: #0078d4a0; /*#646cffa0*/
+  --accent-rgb: 0, 120, 212; /* fallback: Windows blue */
+  /* Ultra-light white tint - minimal Mica effect */
+  background: radial-gradient(ellipse 85% 55% at 95% 5%, #fdffff 0%, #fdffff 50%, #fcfffd 100%),
+              radial-gradient(ellipse 70% 40% at 5% 95%, #fdfffd 0%, #fdfffe 50%, #fcfffd 100%),
+              linear-gradient(135deg, #fdffff 0%, #f9fbf9 50%, #f8fbf9 100%);
+  --acent-color: #0078d4a0;
   --acent-color-dragging: #0078d420;
 
   font-synthesis: none;
@@ -15,6 +19,14 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   user-select: none;
+}
+
+/* Dark mode: accent barely visible on dark */
+[data-theme="dark"] {
+  color: #f6f6f6;
+  background: radial-gradient(ellipse 70% 45% at 90% 10%, rgba(var(--accent-rgb), 0.002) 0%, #1a1b20 70%),
+              radial-gradient(ellipse 55% 35% at 10% 90%, rgba(var(--accent-rgb), 0.001) 0%, #181a1f 70%),
+              linear-gradient(135deg, #1c1e23 0%, #191b1f 100%);
 }
 
 *{
