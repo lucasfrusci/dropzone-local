@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use registry::{Hive, Security, Data};
 
 const PERSREGPATH: &str = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
-const ACCENTPATH: &str = r"Software\Microsoft\Windows\CurrentVersion\Themes\Accent";
+const ACCENTPATH: &str = r"Software\Microsoft\Windows\CurrentVersion\Explorer\Accent";
 
 #[derive(Serialize, Deserialize, Debug)]
 // #[serde(untagged)] PASS THE VALUE DIRECTLY WITHOUT OBJECT, I WILL DISABLE THIS FOR NOW.
@@ -75,11 +75,11 @@ impl ThemeData {
         };
 
         let accent_string = match Hive::CurrentUser.open(ACCENTPATH, Security::Read) {
-            Ok(reg) => match reg.value("AccentColor") {
+            Ok(reg) => match reg.value("AccentColorMenu") {
                 Ok(Data::U32(val)) => format!("{:06x}", val & 0xFFFFFF),
-                _ => String::from("0076d4"),
+                _ => String::from("d47600"),
             }
-            Err(_) => String::from("0076d4"),
+            Err(_) => String::from("d47600"),
         };
 
 
@@ -130,7 +130,7 @@ pub fn get_theme() -> ThemeData {
             ThemeData {
                 transparency: false,
                 app_uses_light: false,
-                accent_color: "0078d4".to_string(),
+                accent_color: "d47600".to_string(),
             }
         }
     }

@@ -14,6 +14,12 @@ export const useTheme = () => {
     let unlisten: (() => void) | undefined;
     let canceled = false;
 
+    const splitColor = (color: string) => {
+      const split = color.match(new RegExp(".{1," + 2 + "}", "g"));
+      if (!split) return color;
+      return split[2] + split[1] + split[0];
+    };
+
     const applyTheme = async (override?: ThemePreference) => {
       try {
         const themeData = await invoke<ThemeData>("get_theme");
@@ -28,10 +34,14 @@ export const useTheme = () => {
         //TEMPORARILY DISABLED
         //if (themeData.transparency) root.style.backgroundColor = "transparent";
 
-        const accent = themeData.accentColor.substring(0, 6);
+        // SPLIT DE FICAR PADRAO BGR PARA RGB
+        let accent = themeData.accentColor.substring(0, 6);
+        accent = splitColor(accent);
         if (accent) {
           root.style.setProperty("--acent-color", `#${accent}60`);
           root.style.setProperty("--acent-color-dragging", `#${accent}20`);
+
+          //root.style.setProperty("--accent-background", `#${accent}05`);
         }
       } catch (error) {
         console.error("Não foi possível carregar o tema do sistema:", error);
