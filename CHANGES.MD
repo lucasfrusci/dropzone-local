@@ -18,7 +18,7 @@
 ## Verificação e pendências
 
 - `cargo check` passou.
-- `pnpm build` passou.
+- `cargo build` passou.
 - A descoberta e o fluxo de pedido/aceitação ainda precisam ser testados entre dois computadores na VM.
 - A aceitação ainda não transfere os bytes do arquivo; o protocolo de transferência fica para uma próxima etapa.
 - A verificação automática de atualizações ainda não está configurada.

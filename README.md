@@ -1,52 +1,40 @@
 # Dropzone
 
-Dropzone is a lightweight desktop app for discovering other Dropzone instances on a local network and requesting file transfers between computers. It is built with Tauri 2, React, TypeScript, and Rust, with Windows as the primary target.
+Dropzone é um aplicativo desktop leve para compartilhar arquivos entre computadores na mesma rede local. O projeto começou com Tauri e foi migrado para **Rust puro com [eframe](https://github.com/emilk/egui/tree/main/crates/eframe) + egui** — não há mais frontend JavaScript/React. O Windows é o alvo principal, mas a ideia é ser multiplataforma. Ainda está em fase inicial.
 
-## Current status
+## Status atual
 
-The app can discover Dropzone instances on the local network and send a file offer containing the sender, file name, and size. The receiving user can accept or cancel the request, and the sender receives the decision.
+- Janela compacta e sem bordas, no estilo OneDrive, com área de drag-and-drop.
+- Seleção de arquivos (botão ou arrastar/soltar) e histórico de uploads recentes.
+- Descoberta de outros computadores rodando o Dropzone na rede local via UDP broadcast na porta `45827`.
+- Alternância entre tema claro e escuro nas configurações.
+- Interface em português (pt-BR).
 
-The actual file data transfer is not implemented yet. Network discovery and the request flow still need to be validated between two computers. **Check for updates** is also a placeholder; automatic update checking is not configured.
+O envio/recebimento real de arquivos **ainda não está implementado** — hoje os arquivos selecionados só são registrados no histórico. A descoberta por rede também ainda precisa ser validada entre dois computadores. A opção **Check for updates** é um placeholder; verificação automática de atualizações não está configurada.
 
-## Features
+## Recursos planejados
 
-- Tray app with a compact drag-and-drop window.
-- Select files or drop them into the app.
-- Discover other running Dropzone instances using UDP broadcast on port `45827`.
-- Ask the receiving computer for permission before a transfer.
-- View recently selected files.
-- Choose a preferred appearance and receive folder in Settings.
+- Ícone na bandeja do sistema (tray icon) — dependência `tray-icon` já adicionada, integração ainda pendente.
+- Upload a partir da área de transferência (placeholder na interface).
+- Notificações nativas (`notify-rust` já adicionado).
+- Recebimento de arquivos em pasta configurável (a pasta escolhida em Settings ainda não é usada).
 
-The selected receive folder is saved as a preference but is not used until file receiving is implemented. Discovery requires both computers to be on a network that allows local UDP broadcast; firewall rules may affect it.
+## Estrutura do projeto
 
-## Requirements
+- `src/main.rs` — ponto de entrada, configuração da viewport e descoberta de rede (UDP).
+- `src/ui.rs` — interface egui: home, drop zone, arquivos recentes, configurações, about e updates.
 
-- Node.js and pnpm
-- Rust toolchain
-- The platform dependencies required by [Tauri 2](https://v2.tauri.app/start/prerequisites/)
+## Requisitos
 
-## Development
+- Rust toolchain (edition 2024)
+- Dependências de sistema para egui/glow no seu sistema operacional
 
-Install the JavaScript dependencies:
-
-```sh
-pnpm install
-```
-
-Run the desktop app in development mode:
+## Desenvolvimento
 
 ```sh
-pnpm tauri dev
+cargo run          # rodar em modo de desenvolvimento
+cargo build        # build de debug
+cargo build --release  # build otimizado
 ```
 
-Build the frontend:
-
-```sh
-pnpm build
-```
-
-## Project layout
-
-- `src/` — React interface and window views.
-- `src-tauri/src/` — Tauri commands and Rust network discovery/request handling.
-- `src-tauri/tauri.conf.json` — Tauri app and window configuration.
+Atalhos de teclado na janela principal: `Ctrl+O` (selecionar arquivo), `Ctrl+U` (uploads recentes), `Ctrl+;` (settings), `Ctrl+Q` (sair).
