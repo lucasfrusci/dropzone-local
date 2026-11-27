@@ -14,6 +14,12 @@ export const useTheme = () => {
     let unlisten: (() => void) | undefined;
     let canceled = false;
 
+    const splitColor = (color: string) => {
+      const split = color.match(new RegExp(".{1," + 2 + "}", "g"));
+      if (!split) return color;
+      return split[2] + split[1] + split[0];
+    };
+
     const applyTheme = async (override?: ThemePreference) => {
       try {
         const themeData = await invoke<ThemeData>("get_theme");
@@ -28,7 +34,8 @@ export const useTheme = () => {
         //TEMPORARILY DISABLED
         //if (themeData.transparency) root.style.backgroundColor = "transparent";
 
-        const accent = themeData.accentColor.substring(0, 6);
+        let accent = themeData.accentColor.substring(0, 6);
+        accent = splitColor(accent);
         if (accent) {
           root.style.setProperty("--acent-color", `#${accent}60`);
           root.style.setProperty("--acent-color-dragging", `#${accent}20`);
